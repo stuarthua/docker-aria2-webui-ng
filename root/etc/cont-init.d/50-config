@@ -29,7 +29,7 @@ touch /data/config/aria2.log
 
 if [ ! -e /data/config/custom.conf ]; then
   cp -f /usr/local/aria2/default.conf /data/config/custom.conf
-then
+fi
 
 chown -R abc:abc \
          /data/aria2-webui-1 \
