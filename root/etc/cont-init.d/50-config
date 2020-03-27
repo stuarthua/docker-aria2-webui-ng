@@ -12,8 +12,6 @@ else
   unset OVERRIDE_OPTIONS
 fi
 
-cp -f /usr/local/aria2/default.conf /data/config/custom.conf
-
 rm -rf /data/webui
 if [ "${WEBUI}" == "aria" ]; then
   ln -s /data/aria2-webui-1 /data/webui
@@ -21,10 +19,17 @@ elif [ "${WEBUI}" == "ariang" ]; then
   ln -s /data/aria2-webui-2 /data/webui
 fi
 
+mkdir -p /data/config
+mkdir -p /data/downloads
+
 touch /data/config/dht.dat
 # touch /data/config/dht6.dat
 touch /data/config/aria2.session
 touch /data/config/aria2.log
+
+if [ ! -e /data/config/custom.conf ]; then
+  cp -f /usr/local/aria2/default.conf /data/config/custom.conf
+then
 
 chown -R abc:abc \
          /data/aria2-webui-1 \
