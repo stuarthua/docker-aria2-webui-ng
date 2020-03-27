@@ -1,96 +1,53 @@
-## 群晖nas自用：
+## docker-aria2
 
-### 感谢以下项目:
+> Synology Aria2
 
-[https://github.com/aria2/aria2](https://github.com/aria2/aria2)                        
-[https://github.com/mayswind/AriaNg](https://github.com/mayswind/AriaNg)             
-[https://github.com/ngosang/trackerslist](https://github.com/ngosang/trackerslist)
+### Batteries included
 
-### 版本：
+* [WebUI] (-e WEBUI=aria) https://github.com/ziahamza/webui-aria2
+* [WebUI] (-e WEBUI=ariang) https://github.com/mayswind/AriaNg/
+* [Trackerlist] (-e TRACKERSAUTO=NO) https://github.com/ngosang/trackerslist
 
-|名称|版本|说明|
-|:-|:-|:-|
-|Aria2|1.35.0|X86_64,修改线程数至128，默认32。集成Trackers自动更新。|
-|AriaNg|1.1.4|Aria2的web管理界面|
+| Parameter | Function |
+| :----: | --- |
+| `-p 4040` | http(s) gui |
+| `-p 6882` | BT download listened port |
+| `-p 6882/udp` | BT download DHT listened port |
+| `-e PUID=1000` | for UserID - see below for explanation |
+| `-e PGID=1000` | for GroupID - see below for explanation |
+| `-e TZ=Asia/Shanghai` | Specify a timezone to use EG Europe/London |
+| `-v /data` | aria2 Data. |
+| `-v /config/ssl` | SSL Key Folder. |
+| `-e CUSTOM_RPC_TOKEN` | Optional. Specify custom RPC token vaule. If no set, see logs. |
+| `-e SKIP_SSL=true` | Optional. Disable HTTPS |
+| `-e TRACKERSAUTO=NO` | Optional. Disable Trackers Update, Defaults to YES |
+| `-e WEBUI=aria` | Optional. Defaults to ariang |
+| `-e CUSTOM_OVERRIDE_OPTIONS` | Optional. Pass arguments to aria2 daemon |
 
-### docker命令行设置：
+### Usage
 
-1. 下载镜像
+Docker
 
-       docker pull   johngong/aria2:latest
+```
+docker create \
+  --name=aria2-webui-ng \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e TZ=Asia/Shanghai \
+  -p 4040:4040 \
+  -p 6882:6882 \
+  -p 6882:6882/udp \
+  -v </path/to/appdata>:/data \
+  -v </path/to/ssl>:/config/ssl \
+  -e WEBUI=aria \
+  --restart unless-stopped \
+  stuarthua/aria2-webui-ng
 
-2. 创建aria2容器
+# simple
+docker create --name=aria2-webui-ng -e TZ=Asia/Shanghai -p 4040:4040 -e -e CUSTOM_RPC_TOKEN=3zr9LT3jg+MyECIfrS1xYhSp1/xjeZPh123nE9sfYVs= --restart unless-stopped lsaria2
+```
 
-        docker create  \
-           --name=aria2  \
-           -p 6881:6881  \
-           -p 6881:6881/udp  \
-           -p 6800:6800  \
-           -p 80:80  \
-           -e RPC_SECRET=不需要可不填 \
-           -v /配置文件位置:/config  \
-           -v /下载位置:/Downloads  \
-           --restart unless-stopped  \
-           johngong/aria2:latest
+## Thanks
 
-
-3. 运行
-
-       docker start aria2
-
-4. 停止
-
-       docker stop aria2
-
-5. 删除容器
-
-       docker rm  aria2
-
-6. 删除镜像
-
-       docker image rm  johngong/aria2:latest
-
-### 变量:
-
-|参数|说明|
-|:-|:-|
-| `--name=aria2` |容器名|
-| `-p 6881:6881` |BT下载监听端口|
-| `-p 6881:6881/udp` |BT下载DHT监听端口
-| `-p 80:80 ` | Aria2NG web访问端口 [IP:80](IP:80)|
-| `-p 6800:6800` |Aria2 RPC 默认端口|
-| `-v /配置文件位置:/config` |Aria2配置文件位置|
-| `-v /下载位置:/Downloads` |Aria2默认下载位置|
-| `-e RPC_SECRET=` |Aria2 RPC token值，默认为空|
-| `-e SECRETAUTO=YES` |添加Aria2NG里RPC连接设置中token值为设置的默认值,默认开启此功能|
-| `-e TRACKERSAUTO=YES` |自动更新Aria2的trackers,默认开启此功能|
-| `-e TZ=Asia/Shanghai` |系统时区设置,默认为Asia/Shanghai|
-
-### 群晖docker设置：
-
-1. 卷
-
-|参数|说明|
-|:-|:-|
-| `本地文件夹1:/Downloads` |Aria2默认下载位置|
-| `本地文件夹2:/config` |Aria2配置位置文件|
-
-2. 端口
-
-|参数|说明|
-|:-|:-|
-| `本地端口1:6881` |BT下载监听端口|
-| `本地端口2:6881/udp` |BT下载DHT监听端口|
-| `本地端口3:6800` |Aria2 RPC 默认端口|
-| `本地端口4:80` |Aria2NG web访问端口 [IP:80](IP:80)|
-
-3. 环境变量：
-
-|参数|说明|
-|:-|:-|
-| `RPC_SECRET=` |Aria2 RPC token值，默认为空|
-| `SECRETAUTO=YES` |添加Aria2NG里RPC连接设置中token值为设置的默认值,默认开启此功能|
-| `TRACKERSAUTO=YES` |自动更新Aria2的trackers,默认开启此功能|
-| `TZ=Asia/Shanghai` |系统时区设置,默认为Asia/Shanghai |
-
-
+* [lukasmrtvy/lsiobase-aria2-webui](https://github.com/lukasmrtvy/lsiobase-aria2-webui)
+* [johngong/aria2](https://registry.hub.docker.com/r/johngong/aria2/)

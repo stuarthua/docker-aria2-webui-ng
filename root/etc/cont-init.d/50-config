@@ -1,0 +1,38 @@
+#!/usr/bin/with-contenv bash
+
+printf "${CUSTOM_RPC_TOKEN:-$(openssl rand -base64 32)}" > /var/run/s6/container_environment/RPC_TOKEN
+
+OVERRIDE_OPTIONS=("${CUSTOM_OVERRIDE_OPTIONS}")
+
+export WEBUI=${WEBUI:-ariang}
+
+if [ "${#OVERRIDE_OPTIONS[@]}" -gt 0 ]; then
+  printf "${OVERRIDE_OPTIONS}" > /var/run/s6/container_environment/OVERRIDE_OPTIONS
+else
+  unset OVERRIDE_OPTIONS
+fi
+
+cp -f /usr/local/aria2/default.conf /data/config/custom.conf
+
+rm -rf /data/webui
+if [ "${WEBUI}" == "aria" ]; then
+  ln -s /data/aria2-webui-1 /data/webui
+elif [ "${WEBUI}" == "ariang" ]; then
+  ln -s /data/aria2-webui-2 /data/webui
+fi
+
+touch /data/config/dht.dat
+# touch /data/config/dht6.dat
+touch /data/config/aria2.session
+touch /data/config/aria2.log
+
+chown -R abc:abc \
+         /data/aria2-webui-1 \
+         /data/aria2-webui-2 \
+         /data/config \
+         /data/downloads
+
+chown -R abc:abc  \
+        /var/lib/nginx
+
+echo "Suggest RPC Token: $(cat /var/run/s6/container_environment/RPC_TOKEN)"

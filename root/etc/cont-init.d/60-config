@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+
+# set trackers update task
+if [ "${TRACKERSAUTO}" == "YES" ];then
+  if [ `grep -c updatetrackers.sh /var/spool/cron/crontabs/root` -eq 0 ];then
+    echo "0       0       *       *       *       /usr/local/aria2/updatetrackers.sh" >> /var/spool/cron/crontabs/root
+    echo "trackers update task setup done."
+  else
+    echo "trackers update task already setup!"
+  fi
+else
+  if [ `grep -c updatetrackers.sh /var/spool/cron/crontabs/root` -ne 0 ];then
+    sed -e '/0       0       *       *       *       /usr/local/aria2/updatetrackers.sh/d'  a.txt  > /var/spool/cron/crontabs/root
+    echo "trackers update task setup clear!"
+  fi
+fi
+
+# when powner on update trackers
+/usr/local/aria2/updatetrackers.sh

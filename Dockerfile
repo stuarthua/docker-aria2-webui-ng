@@ -1,60 +1,32 @@
-FROM alpine:3.10 as compilingaria2c
+FROM lsiobase/alpine.nginx:3.9
 
-#compiling aria2c
+ARG BUILD_DATE
+ARG VERSION
+LABEL build_version="Linuxserver.io version:- ${VERSION} Build-date:- ${BUILD_DATE}"
+LABEL maintainer="stuarthua"
 
-ARG  ARIA2_VER=1.35.0
+ARG ARIA2_VERSION
+ARG ARIA2WEBUI_1_VERSION
+ARG ARIA2WEBUI_2_VERSION
 
+ENV ARIA2_VERSION 1.34.0-r1
+ENV ARIA2WEBUI_1_VERSION fb9d758d5cdc2be0867ee9502c44fd17560f5d24
+ENV ARIA2WEBUI_2_VERSION 1.1.4
+ENV TRACKERSAUTO YES
 
-RUN  apk add --no-cache ca-certificates make g++ gcc file cppunit-dev zlib-dev openssl-dev expat-dev sqlite-dev c-ares-dev libssh2-dev  \
-&&   mkdir /aria2c  \
-&&   wget -P /aria2c   https://github.com/aria2/aria2/releases/download/release-${ARIA2_VER}/aria2-${ARIA2_VER}.tar.gz  \
-&&   tar  -zxvf  /aria2c/aria2-${ARIA2_VER}.tar.gz  -C    /aria2c  \
-&&   cd  /aria2c/aria2-${ARIA2_VER}  \
-&&   sed  -i  's/"1", 1, 16/"1", 1, 128/g'          src/OptionHandlerFactory.cc    \
-&&   sed  -i  's/"20M", 1_m, 1_g/"4k", 1_k, 1_g/g'  src/OptionHandlerFactory.cc    \
-&&   ./configure --without-libxml2  --without-gnutls --with-openssl  --host=x86_64-alpine-linux-musl   \
-&&   make install-strip   \
-&&   ldd /usr/local/bin/aria2c   |cut -d ">" -f 2|grep lib|cut -d "(" -f 1|xargs tar -chvf /aria2c/aria2c.tar  \
-&&   mkdir /aria2  \
-&&   tar  -xvf /aria2c/aria2c.tar  -C /aria2   \
-&&   cp --parents /usr/local/bin/aria2c /aria2
+RUN \
+    set -xe && \
+    apk add --no-cache unzip tar curl openssl aria2=${ARIA2_VERSION} && \
+    mkdir -p /data/aria2-webui-1 /tmp/aria2-webui-1 /data/aria2-webui-2 /tmp/aria2-webui-2 /data/config /data/downloads && \
+    curl -sSL https://github.com/ziahamza/webui-aria2/archive/${ARIA2WEBUI_1_VERSION}.tar.gz | tar xz -C /tmp/aria2-webui-1 --strip-components=1 && \
+    cp -R /tmp/aria2-webui-1/docs/* /data/aria2-webui-1 && \
+    curl -sSL https://github.com/mayswind/AriaNg/releases/download/${ARIA2WEBUI_2_VERSION}/AriaNg-${ARIA2WEBUI_2_VERSION}.zip -o /tmp/AriaNg-${ARIA2WEBUI_2_VERSION}.zip && \
+    unzip /tmp/AriaNg-${ARIA2WEBUI_2_VERSION}.zip -d /data/aria2-webui-2 && \
+    apk del unzip tar && \
+    rm -rf /tmp/*
 
+COPY root/ /
 
-# docker aria2 
- 
+EXPOSE 4040
 
-FROM alpine:3.10
-
-ARG  AriaNg_VER=1.1.4
-ARG  S6_VER=1.22.1.0
-
-ENV RPC_SECRET=
-ENV SECRETAUTO=YES
-ENV TRACKERSAUTO=YES
-ENV TZ=Asia/Shanghai
-
-
-
-COPY  root /
-COPY --from=compilingaria2c  /aria2  /
-
-# install bash  darkhttpd tzdata s6 overlay AriaNg aria2
-RUN apk add --no-cache bash  curl ca-certificates  darkhttpd  tzdata \
-&& wget  https://github.com/just-containers/s6-overlay/releases/download/v${S6_VER}/s6-overlay-amd64.tar.gz  \
-&& tar xvzf s6-overlay-amd64.tar.gz  \
-&& rm s6-overlay-amd64.tar.gz  \
-&& rm -rf /var/cache/apk/*  \
-&& wget https://github.com/mayswind/AriaNg/releases/download/${AriaNg_VER}/AriaNg-${AriaNg_VER}.zip  \
-&& mkdir -p /usr/local/aria2/AriaNg/js/Originaljs \ 
-&& unzip -d /usr/local/aria2/AriaNg    AriaNg-${AriaNg_VER}.zip  \
-&& rm  AriaNg-${AriaNg_VER}.zip \   
-&& cp /usr/local/aria2/AriaNg/js/aria-ng* /usr/local/aria2/AriaNg/js/Originaljs \ 
-&& chmod a+x /usr/local/bin/aria2c   \  
-&& chmod a+x /etc/cont-init.d/aria2c.sh \
-&& chmod a+x /etc/services.d/aria2  \
-&& chmod a+x /usr/local/aria2/updatetrackers.sh 
-
-
-VOLUME /Downloads /config
-EXPOSE 6800  80  6881  6881/udp
-ENTRYPOINT [ "/init" ]
+VOLUME /data /config/keys
