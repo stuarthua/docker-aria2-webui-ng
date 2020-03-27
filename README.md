@@ -17,7 +17,7 @@
 | `-e PGID=100` | for GroupID - see below for explanation |
 | `-e TZ=Asia/Shanghai` | Specify a timezone to use EG Europe/London |
 | `-v /data` | aria2 Data. |
-| `-v /config/ssl` | SSL Key Folder. |
+| `-v /config/keys` | SSL Key Folder. |
 | `-e CUSTOM_RPC_TOKEN` | Optional. Specify custom RPC token vaule. If no set, see logs. |
 | `-e SKIP_SSL=true` | Optional. Disable HTTPS |
 | `-e TRACKERSAUTO=NO` | Optional. Disable Trackers Update, Defaults to YES |
@@ -39,7 +39,7 @@ docker create \
   -e TZ=Asia/Shanghai \
   -e CUSTOM_RPC_TOKEN=<rpc token> \
   -v </path/to/appdata>:/data \
-  -v </path/to/ssl>:/config/ssl \
+  -v </path/to/ssl>:/config/keys \
   --restart unless-stopped \
   stuarthua/aria2-webui-ng
 ```
