@@ -16,8 +16,8 @@
 | `-e PUID=1026` | for UserID - see below for explanation |
 | `-e PGID=100` | for GroupID - see below for explanation |
 | `-e TZ=Asia/Shanghai` | Specify a timezone to use EG Europe/London |
-| `-v /data/config` | aria2 Data Config Folder. |
-| `-v /data/downloads` | aria2 Data Download Folder. |
+| `-v /data/config` | aria2 Config Folder. |
+| `-v /data/downloads` | aria2 Download Folder. |
 | `-v /config/keys` | SSL Key Folder. |
 | `-e CUSTOM_RPC_TOKEN` | Optional. Specify custom RPC token vaule. If no set, see logs. |
 | `-e SKIP_SSL=true` | Optional. Disable HTTPS |
@@ -49,7 +49,7 @@ docker create \
 Docker single
 
 ```
-docker create --name=aria2-webui-ng -p 4040:4040 -p 6882:6882 -p 6882:6882/udp -e PUID=1026 -e PGID=100 -e TZ=Asia/Shanghai -e CUSTOM_RPC_TOKEN=123qwe --restart unless-stopped stuarthua/aria2-webui-ng
+docker run -d --name=aria2-webui-ng -p 4040:4040 -p 6882:6882 -p 6882:6882/udp -e PUID=1026 -e PGID=100 -e TZ=Asia/Shanghai -e CUSTOM_RPC_TOKEN=123qwe --restart unless-stopped stuarthua/aria2-webui-ng
 ```
 
 ## Thanks
